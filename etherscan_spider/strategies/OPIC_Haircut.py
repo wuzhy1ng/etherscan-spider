@@ -1,6 +1,3 @@
-import networkx as nx
-
-
 class OPICHaircut:
     name = 'OPICHaircut'
 

@@ -1,7 +1,5 @@
 from queue import Queue
 
-import networkx as nx
-
 
 class BFS:
     name = 'BFS'
