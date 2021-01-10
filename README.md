@@ -10,7 +10,7 @@ Ethereum data spider on etherscan
 - Scrapy1.7 or higher version
 
 ## Set seeds of crawl task
-Crawling transaction data need a seed address or a seed file
+Crawling transaction data need a seed address or a seed file, 
 It's highly recommand you prepared a seed file with `csv` format in `./data` folder
 Just like this:`./data/seed.csv`:
 ```
