@@ -49,7 +49,7 @@ You can set `SSR` port on 1080 and start spider as usual.
 ## Crawl transaction with a strategy
 There are three kinds of strategies for you to start crawl transaction data,
 including  `Random`, `BFS` and `OPICHaircut`.
-You can start a spider with `BFS` strategy just like this:
+You can start a spider with `BFS` strategy on console:
 ```
 scrapy crawl bfs_tx_spider -a file=./data/seed.csv -a depth=2
 ```
