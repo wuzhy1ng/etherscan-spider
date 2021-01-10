@@ -9,6 +9,11 @@ Ethereum data spider on etherscan
 - Python3.5 or higher version
 - Scrapy1.7 or higher version
 
+## Download this project
+```
+git clone https://github.com/RagingBear/etherscan-spider.git
+```
+
 ## Set seeds of crawl task
 Crawling transaction data need a seed address or a seed file, 
 It's highly recommand you prepared a seed file with `csv` format in `./data` folder
@@ -62,7 +67,7 @@ For more usage, please consult the author.
 
 ## Data storage
 You can find spider output `csv` file in `./data` folder with specific stragety, for example, if you start a `BFS` spider, the output folder is `./data/BFS`.
-It's looks lick this:
+It looks lick this:
 ```
 hash,from,to,value,blockNumber,timeStamp,gas,gasPrice,gasUsed
 0x94917b89296051b066db2ac572987d8ec48a88716f51291a47d50e6b1e8cc20c,0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be,0x0a0ba956038d4a66002d612648332b9c4ab7646c,500000000000000000,6026742,1532511199,21000,60000000000,21000
