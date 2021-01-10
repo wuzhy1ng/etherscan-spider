@@ -3,7 +3,7 @@ Ethereum data spider on etherscan
 
 ## Targets
 
-- Crawl transaction data from etherscan
+- Crawl transaction data from etherscan api
 
 ## Dependency
 - Python3.5 or higher version
@@ -58,3 +58,4 @@ You can start a spider with `BFS` strategy and control the extend count equals t
 ```
 scrapy crawl bfs_tx_spider -a file=./data/seed.csv -a epa=300
 ```
+For more usage, please consult the author.
