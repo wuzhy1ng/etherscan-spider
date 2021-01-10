@@ -30,11 +30,31 @@ APITOKENS = [
 ]
 ```
 
+## Set proxy port
+If you are located in China, it's necessary for you to make a proxy for visit etherscan.
+I'm prepared the middleware for `SSR`, you can see at `settings.py`:
+```
+DOWNLOADER_MIDDLEWARES = {
+    'etherscan_spider.middlewares.EtherscanSpiderDownloaderMiddleware': 543,
+}
+```
+For more detail of this `DownloadMiddleware`:
+```    
+def process_request(self, request, spider):
+  request.meta['proxy'] = "http://localhost:1080"
+  return None
+```
+You can set `SSR` port on 1080 and start spider as usual.
+
 ## Crawl transaction with a strategy
 There are three kinds of strategies for you to start crawl transaction data,
 including  `Random`, `BFS` and `OPICHaircut`.
-You can start a spider with BFS strategy just like this:
+You can start a spider with `BFS` strategy just like this:
 ```
 scrapy crawl bfs_tx_spider -a file=./data/seed.csv -a depth=2
 ```
 In this way, spider will start crawl from seed address of file and the depth within 2 floors.
+You can start a spider with `BFS` strategy and control the extend count equals to 300 just like this:
+```
+scrapy crawl bfs_tx_spider -a file=./data/seed.csv -a epa=300
+```
