@@ -84,8 +84,6 @@ class OpichaircutTxSpiderSpider(scrapy.Spider):
             else:
                 yield from self.gen_req(kwargs['seed'], kwargs['address'], kwargs['page'] + 1, kwargs['extend_count'])
 
-
-
     def gen_url(self, apikey: str, address: str, page: int):
         return 'http://api.etherscan.io/api?module=account&action=txlist' \
                '&address=%s' \
@@ -105,6 +103,8 @@ class OpichaircutTxSpiderSpider(scrapy.Spider):
             )
 
     def req_filter(self, address: str):
-        if self.label_map.get(address) and self.label_map[address] == 'exchange':
+        if address is None \
+                or (self.label_map.get(address) and self.label_map[address] == 'exchange') \
+                or len(address) < 42:
             return None
         return address

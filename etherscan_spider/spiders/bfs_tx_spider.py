@@ -112,6 +112,8 @@ class BfsTxSpiderSpider(scrapy.Spider):
             )
 
     def req_filter(self, address: str):
-        if self.label_map.get(address) and self.label_map[address] == 'exchange':
+        if address is None \
+                or (self.label_map.get(address) and self.label_map[address] == 'exchange') \
+                or len(address) < 42:
             return None
         return address
