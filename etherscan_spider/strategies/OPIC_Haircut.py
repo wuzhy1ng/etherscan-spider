@@ -33,6 +33,6 @@ class OPICHaircut:
         items = list(self._dirty.items())
         items.sort(key=lambda x: x[1], reverse=True)
         for item in items:
-            if not set(item[0]).issubset(self._vis):
+            if not {item[0]}.issubset(self._vis):
                 self._vis.add(item[0])
                 return item[0]
