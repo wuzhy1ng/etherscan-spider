@@ -28,7 +28,7 @@ Just like this:`./data/seed.csv`:
 ## Set your etherscan api token
 Crawling task needs etherscan api tokens. 
 You can add your api tokens in `settings.py`
-```
+```python
 # etherscan apikey
 APITOKENS = [
   
@@ -38,13 +38,13 @@ APITOKENS = [
 ## Set proxy port
 If you are located in China, it's necessary for you to make a proxy for visit etherscan.
 I'm prepared the middleware for `SSR`, you can see at `settings.py`:
-```
+```python
 DOWNLOADER_MIDDLEWARES = {
     'etherscan_spider.middlewares.EtherscanSpiderDownloaderMiddleware': 543,
 }
 ```
 For more detail of this `DownloadMiddleware`:
-```    
+```python
 def process_request(self, request, spider):
   request.meta['proxy'] = "http://localhost:1080"
   return None
