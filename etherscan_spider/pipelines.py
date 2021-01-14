@@ -8,7 +8,7 @@
 import csv
 import os
 
-from .items import SubgraphItem, TxItem, CloseItem
+from .items import TxItem, CloseItem
 
 
 class TxPipeline:
@@ -30,37 +30,7 @@ class TxPipeline:
 
             csv.writer(self.file_map[item['seed']]).writerow([item['tx'][key] for key in self.file_headers])
         elif isinstance(item, CloseItem):
-            self.file_map[item['seed']].close()
-            del self.file_map[item['seed']]
-        return item
-
-
-class TxPipeline_:
-    def __init__(self):
-        self.data_path = './data'
-        self.strategy_path = None
-
-    def process_item(self, item, spider):
-        if isinstance(item, SubgraphItem):
-            if self.strategy_path is None:
-                if not os.path.exists('%s/%s' % (self.data_path, spider.strategy)):
-                    os.mkdir('%s/%s' % (self.data_path, spider.strategy))
-                self.strategy_path = spider.strategy
-
-            with open('%s/%s/%d_%s.csv' % (self.data_path, self.strategy_path, spider.epa, item['address']), 'w',
-                      newline='') as f:
-                writer = csv.writer(f)
-                for e in item['edges']:
-                    raw_data = e[2].get('raw_data')
-                    writer.writerow([
-                        raw_data['hash'],
-                        raw_data['from'],
-                        raw_data['to'],
-                        raw_data['value'],
-                        raw_data['blockNumber'],
-                        raw_data['timeStamp'],
-                        raw_data['gas'],
-                        raw_data['gasPrice'],
-                        raw_data['gasUsed'],
-                    ])
+            # 记录爬过的地址
+            with open('./data/crawled.csv', 'a', newline='') as f:
+                csv.writer(f).writerow([item['seed'], ])
         return item

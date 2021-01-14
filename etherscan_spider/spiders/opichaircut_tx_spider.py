@@ -19,6 +19,7 @@ class OpichaircutTxSpiderSpider(scrapy.Spider):
 
         self.seed = kwargs.get('seed', None)
         self.filename = kwargs.get('file', None)
+        self.except_filename = kwargs.get('file_expect', None)  # 无需爬取的种子文件
         self.epa = int(kwargs.get('epa', 100))  # 每个节点扩展次数
 
         self.seed_list = list()  # 待扩展的种子列表
@@ -36,9 +37,20 @@ class OpichaircutTxSpiderSpider(scrapy.Spider):
         if self.seed is None and self.filename is None:
             self.crawler.engine.close_spider(self, 'lost arguments')
 
+        # 读取无需爬取的种子
+        except_seed = None
+        if self.except_filename is not None:
+            except_seed = set()
+            with open(self.except_filename, 'r') as f:
+                for row in csv.reader(f):
+                    except_seed.add(row[0])
+
+        # 读取种子文件
         if self.filename is not None:
             with open(self.filename, 'r') as f:
                 for row in csv.reader(f):
+                    if except_seed is not None and row[0] in except_seed:
+                        continue
                     self.seed_list.append(row[0])
                     self.seed_map[row[0]] = {'strategy': self.strategy(row[0], self.all_dirty), 'extend_count': 1}
         elif self.seed is not None:
