@@ -83,3 +83,11 @@ hash,from,to,value,blockNumber,timeStamp,gas,gasPrice,gasUsed
 0x5c992599647f4a95919d68c4fe137612635bb9c9530b6a4572049c6197678a81,0x26b315a3dd31f4002df033b5e493c05cdbd9d36c,0x0a0ba956038d4a66002d612648332b9c4ab7646c,950209050000000000,6030488,1532565565,21000,2000000000,21000
 ...
 ```
+
+## Data export
+Crawl task will generate raw data with duplicate row, you can use `export` of utils to filter duplicate row:
+```
+python utils.py export -i ./data/BFS/ -o ./data/output
+``` 
+- `-i`: It means input raw data folder
+- `-o`: It means output data folder
