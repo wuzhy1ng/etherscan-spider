@@ -89,7 +89,7 @@ class BfsTxSpiderSpider(scrapy.Spider):
                     # 以深度作为爬取结束条件
                     # 以扩展次数作为爬取结束条件
                     if (self.depth is not None and kwargs['depth'] >= self.depth) or \
-                            self.seed_map[seed]['extend_count'] + 1 > self.epa:
+                            (self.depth is None and self.seed_map[seed]['extend_count'] + 1 > self.epa):
                         del self.seed_map[seed]
                         logging.info("On parse: %s finished" % seed)
                         yield CloseItem(seed=seed)

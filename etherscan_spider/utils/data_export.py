@@ -49,7 +49,7 @@ def process():
 
     if args.input is None or args.output is None:
         print('lost arguments')
-        exit(0)
+        return
 
     if not os.path.exists(args.input):
         print('input folder doesn\'t existed ')
