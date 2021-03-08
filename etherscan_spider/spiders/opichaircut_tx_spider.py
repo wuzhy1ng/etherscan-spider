@@ -80,7 +80,7 @@ class OpichaircutTxSpiderSpider(scrapy.Spider):
             if data['result'] is not None:
                 for i in range(len(data['result'])):
                     data['result'][i]['value'] = float(data['result'][i]['value'])
-                self.seed_map[seed]['strategy'].push(seed, data['result'])
+                self.seed_map[seed]['strategy'].push(kwargs['address'], data['result'])
 
             # next address request
             if data['result'] is None or len(data['result']) < 10000:

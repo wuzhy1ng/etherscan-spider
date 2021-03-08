@@ -17,10 +17,10 @@ class OPICHaircut:
                 sum_out += e.get('value', 0)
             elif seed == e.get('to'):
                 sum_in += e.get('value', 0)
-        if sum_in == 0 or sum_out == 0: return 0
+        if sum_in == 0 or sum_out == 0: return
         R = sum_out / sum_in if sum_out / sum_in < 1 else 1
 
-        d = self._dirty.get('seed', 0)
+        d = self._dirty.get(seed, 0)
         for e in edges:
             if seed == e.get('from'):
                 _to = e.get('to')
@@ -33,6 +33,6 @@ class OPICHaircut:
         items = list(self._dirty.items())
         items.sort(key=lambda x: x[1], reverse=True)
         for item in items:
-            if not {item[0]}.issubset(self._vis):
+            if item[0] not in self._vis:
                 self._vis.add(item[0])
                 return item[0]

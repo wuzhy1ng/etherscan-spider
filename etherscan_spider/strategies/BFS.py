@@ -17,7 +17,7 @@ class BFS:
     def pop(self):
         while not self._queue.empty():
             node = self._queue.get()
-            if not set(node).issubset(self._vis):
+            if node not in self._vis:
                 self._vis.add(node)
                 return node
         return None

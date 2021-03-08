@@ -18,3 +18,7 @@ class TxItem(scrapy.Item):
 
 class CloseItem(scrapy.Item):
     seed = scrapy.Field()
+
+
+class ErrorItem(scrapy.Item):
+    seed = scrapy.Field()

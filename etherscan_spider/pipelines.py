@@ -24,7 +24,7 @@ class TxPipeline:
                 os.mkdir('%s/%s' % (self.data_path, spider.strategy.name))
 
             if not self.file_map.get(item['seed'], None):
-                filename = '%s/%s/%s' % (self.data_path, spider.strategy.name, '%s_%s.csv' % (epa, item['seed']))
+                filename = '%s/%s/%s' % (self.data_path, spider.strategy.name, '%s_%s.csv' % (epa, item['seed'].lower()))
                 self.file_map[item['seed']] = open(filename, 'w', newline='')
                 csv.writer(self.file_map[item['seed']]).writerow(self.file_headers)
 

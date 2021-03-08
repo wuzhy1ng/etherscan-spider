@@ -4,7 +4,7 @@ import os
 
 
 class BaseExporter:
-    def gen_data(self, in_filename, out_filename):
+    def gen_data(self, in_filename: str, out_filename: str):
         in_file = open(in_filename, 'r')
         out_file = open(out_filename, 'w', newline='')
 
@@ -18,12 +18,16 @@ class BaseExporter:
         # save data
         s = set()
         for row in reader:
-            if row[0] not in s:
+            if row[0] not in s and float(row[3]) > 0:
                 writer.writerow(row)
                 s.add(row[0])
 
         in_file.close()
         out_file.close()
+
+        # 删掉空文件
+        if len(s) == 0:
+            os.remove(out_filename)
 
 
 class RandomExporter(BaseExporter):

@@ -14,7 +14,7 @@ class Random:
     def pop(self):
         while len(self._nodes) != 0:
             node = self._nodes.pop()
-            if not {node}.issubset(self._vis):
+            if node not in self._vis:
                 self._vis.add(node)
                 return node
         return None
