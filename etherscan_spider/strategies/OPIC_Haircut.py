@@ -1,7 +1,7 @@
 class OPICHaircut:
     name = 'OPICHaircut'
 
-    def __init__(self, source, dirty, a: float = 0.8):
+    def __init__(self, source, dirty: float = 1.0, a: float = 0.8):
         self.a = a
         self._dirty = dict()
         self._vis = set()

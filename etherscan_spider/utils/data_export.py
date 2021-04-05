@@ -1,9 +1,13 @@
 import argparse
 import csv
 import os
+import multiprocessing as mp
 
 
 class BaseExporter:
+    def __call__(self, *args, **kwargs):
+        self.gen_data(args[0], args[1])
+
     def gen_data(self, in_filename: str, out_filename: str):
         in_file = open(in_filename, 'r')
         out_file = open(out_filename, 'w', newline='')
@@ -49,6 +53,8 @@ def process():
     #                     default=None)
     parser.add_argument('-i', '--input', help='input raw data folder', dest='input', type=str, default=None)
     parser.add_argument('-o', '--output', help='output data folder', dest='output', type=str, default=None)
+    parser.add_argument('-c', '--crawled', help='output crawled seeds', dest='crawled', type=bool, default=False)
+
     args = parser.parse_args()
 
     if args.input is None or args.output is None:
@@ -62,32 +68,24 @@ def process():
     if not os.path.exists(args.output):
         os.mkdir(args.output)
 
+    crawled_seeds = set()
+    if args.crawled is True:
+        with open('./data/crawled.csv', 'r') as f:
+            for row in csv.reader(f):
+                crawled_seeds.add(row[0])
+
+    print('export using cpu core:', mp.cpu_count())
+    pool = mp.Pool(mp.cpu_count())
+
     ept = BaseExporter()
     for filename in os.listdir(args.input):
+        seed = filename.split('_')[1].split('.')[0]
+        if args.crawled is True and seed not in crawled_seeds:
+            continue
+
         print('processing file:%s' % filename)
         in_filename = args.input.rstrip('/|\\') + '/' + filename
         out_filename = args.output.rstrip('/|\\') + '/' + filename
-        ept.gen_data(in_filename, out_filename)
-
-    # if args.method == 'Random':
-    #     ept = RandomExporter()
-    #     for filename in os.listdir(args.input):
-    #         logging.info('processing file:%s' % filename)
-    #         in_filename = args.input.rstrip('/|\\') + '/' + filename
-    #         out_filename = args.output.rstrip('/|\\') + '/' + filename
-    #         ept.gen_data(in_filename, out_filename)
-    # elif args.method == 'BFS':
-    #     ept = BFSExporter()
-    #     for filename in os.listdir(args.input):
-    #         logging.info('processing file:%s' % filename)
-    #         in_filename = args.input.rstrip('/|\\') + '/' + filename
-    #         out_filename = args.output.rstrip('/|\\') + '/' + filename
-    #         ept.gen_data(in_filename, out_filename)
-    # elif args.method == 'OPICHaircut':
-    #     ept = OPICHaircutExporter()
-    #     for filename in os.listdir(args.input):
-    #         logging.info('processing file:%s' % filename)
-    #         in_filename = args.input.rstrip('/|\\') + '/' + filename
-    #         out_filename = args.output.rstrip('/|\\') + '/' + filename
-    #         ept.gen_data(in_filename, out_filename)
-    # logging.info('finished!!!')
+        pool.apply_async(ept, (in_filename, out_filename))
+    pool.close()
+    pool.join()

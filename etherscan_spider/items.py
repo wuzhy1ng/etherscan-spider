@@ -6,11 +6,6 @@
 import scrapy
 
 
-class SubgraphItem(scrapy.Item):
-    address = scrapy.Field()
-    edges = scrapy.Field()
-
-
 class TxItem(scrapy.Item):
     seed = scrapy.Field()
     tx = scrapy.Field()
