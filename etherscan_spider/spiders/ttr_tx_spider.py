@@ -56,6 +56,7 @@ class TTRTxSpider(scrapy.Spider):
                         continue
                     self.seed_list.append(row[0])
                     self.seed_map[row[0]] = {'strategy': self.strategy(row[0])}
+
         # 以参数形式输入种子
         elif self.seed is not None:
             self.seed_list.append(self.seed)
@@ -78,9 +79,12 @@ class TTRTxSpider(scrapy.Spider):
 
         # process tx
         if data['result'] is not None:
-            # save tx
-            for row in data['result']:
-                yield TxItem(seed=kwargs['seed'], tx=row)
+            for i in range(len(data['result'])):
+                # format data type
+                data['result'][i]['timeStamp'] = int(data['result'][i]['timeStamp'])
+
+                # save tx
+                yield TxItem(seed=kwargs['seed'], tx=data['result'][i])
 
         # push data to strategy
         if data['result'] is not None:
