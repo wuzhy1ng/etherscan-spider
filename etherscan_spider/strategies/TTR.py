@@ -57,11 +57,10 @@ class TTR:
         # 累计叠加，计算每个chip之后的value之和
         j = len(es_out) - 1
         sum_w, W = 0, dict()
-        for i in range(len(r_node) - 1, 0, -1):
-            e = es_out[j]
+        for i in range(len(r_node) - 1, -1, -1):
             c = r_node[i]
-            while j >= 0 and e['timeStamp'] > c[0]:
-                sum_w += e['value']
+            while j >= 0 and es_out[j]['timeStamp'] > c[0]:
+                sum_w += es_out[j]['value']
                 j -= 1
             W[c] = sum_w
 
@@ -70,9 +69,8 @@ class TTR:
         d = 0
         for i in range(0, len(es_out)):
             e = es_out[i]
-            c = r_node[j]
-            while j < len(r_node) and e['timeStamp'] > c[0]:
-                d += c[1] / W[c]
+            while j < len(r_node) and e['timeStamp'] > r_node[j][0]:
+                d += r_node[j][1] / W[r_node[j]] if W[r_node[j]] > 0 else 0
                 j += 1
 
             if self.r.get(e['to']) is None:
@@ -86,7 +84,7 @@ class TTR:
         for e in edges:
             if e['to'] == node:
                 es_in.append(e)
-        r_node = [(t, v) for t, v in self.r[node]]
+        r_node = [(t, v) for t, v in self.r[node].items()]
 
         # 根据时间排序-从大到小
         es_in.sort(key=lambda e: e['timeStamp'], reverse=True)
@@ -95,22 +93,20 @@ class TTR:
         # 累计叠加，计算每个chip之后的value之和
         j = len(es_in) - 1
         sum_w, W = 0, dict()
-        for i in range(len(r_node) - 1, 0, -1):
-            e = es_in[j]
+        for i in range(len(r_node) - 1, -1, -1):
             c = r_node[i]
-            while j >= 0 and e['timeStamp'] > c[0]:
-                sum_w += e['value']
+            while j >= 0 and es_in[j]['timeStamp'] > c[0]:
+                sum_w += es_in[j]['value']
                 j -= 1
             W[c] = sum_w
 
-        # 将流动传播给入度邻居
+        # 将流动传播给出度邻居
         j = 0
         d = 0
         for i in range(0, len(es_in)):
             e = es_in[i]
-            c = r_node[j]
-            while j < len(r_node) and e['timeStamp'] > c[0]:
-                d += c[0] / W[c]
+            while j < len(r_node) and e['timeStamp'] > r_node[j][0]:
+                d += r_node[j][1] / W[r_node[j]] if W[r_node[j]] > 0 else 0
                 j += 1
 
             if self.r.get(e['from']) is None:
@@ -119,10 +115,10 @@ class TTR:
                                                 (1 - self.alpha) * (1 - self.beta) * e['value'] * d
 
     def pop(self):
-        for node, chips in self.r:
+        for node, chips in self.r.items():
             sum_r = 0
-            for chip in chips:
-                sum_r += chip[1]
+            for _, v in chips.items():
+                sum_r += v
             if sum_r > self.epsilon:
                 return node
         return None

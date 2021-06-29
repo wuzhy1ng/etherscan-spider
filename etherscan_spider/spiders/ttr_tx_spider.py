@@ -30,9 +30,9 @@ class TTRTxSpider(scrapy.Spider):
         self.field_mask = set(self.field_mask.split(','))
 
         # 策略参数
-        self.alpha = kwargs.get('alpha', 0.15)
-        self.beta = kwargs.get('beta', 0.8)
-        self.epsilon = kwargs.get('epsilon', 1e-5)
+        self.alpha = float(kwargs.get('alpha', 0.15))
+        self.beta = float(kwargs.get('beta', 0.8))
+        self.epsilon = float(kwargs.get('epsilon', 1e-5))
 
         self.seed_list = list()  # 待扩展的种子列表
         self.seed_map = dict()  # 与种子爬取任务相关信息
@@ -120,5 +120,9 @@ class TTRTxSpider(scrapy.Spider):
     def req_filter(self, address: str):
         if address is None \
                 or len(address) < 42:
+            return None
+        if address in {'0x876eabf441b2ee5b5b0554fd502a8e0600950cfa', '0xf0d9fcb4fefdbd3e7929374b4632f8ad511bd7e3',
+                       '0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be', '0xf775a9a0ad44807bc15936df0ee68902af1a0eee',
+                       '0x034f854b44d28e26386c1bc37ff9b20c6380b00d'}:
             return None
         return address
