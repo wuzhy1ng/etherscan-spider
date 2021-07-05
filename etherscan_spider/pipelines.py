@@ -8,7 +8,7 @@
 import csv
 import os
 
-from .items import TxItem, CloseItem
+from .items import TxItem, CloseItem, TTRItem
 
 
 class TxPipeline:
@@ -21,11 +21,11 @@ class TxPipeline:
         self.closed_seed = set()
 
     def process_item(self, item, spider):
-        if isinstance(item, TxItem):
-            out_path = spider.out_path
-            if not os.path.exists(out_path):
-                os.mkdir(out_path)
+        out_path = spider.out_path
+        if not os.path.exists(out_path):
+            os.mkdir(out_path)
 
+        if isinstance(item, TxItem):
             field_mask = spider.field_mask
             fields = list()
             for field in self.fields:
@@ -46,4 +46,12 @@ class TxPipeline:
             self.closed_seed.add(item['seed'])
             with open('./data/crawled.csv', 'a', newline='') as f:
                 csv.writer(f).writerow([item['seed'], ])
+        elif isinstance(item, TTRItem):
+            filename = os.path.join(out_path, item['seed'].lower() + '_ttr.csv')
+            with open(filename, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['address', 'weight'])
+                for k, v in item['p'].items():
+                    writer.writerow([k, v])
+
         return item

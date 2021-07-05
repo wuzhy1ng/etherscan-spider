@@ -4,7 +4,7 @@ import logging
 
 import scrapy
 
-from etherscan_spider.items import TxItem
+from etherscan_spider.items import TxItem, TTRItem
 from etherscan_spider.settings import APITOKENS
 from etherscan_spider.strategies.TTR import TTR
 from etherscan_spider.utils import TokenBucket
@@ -31,7 +31,7 @@ class TTRTxSpider(scrapy.Spider):
 
         # 策略参数
         self.alpha = float(kwargs.get('alpha', 0.15))
-        self.beta = float(kwargs.get('beta', 0.8))
+        self.beta = float(kwargs.get('beta', 0.9))
         self.epsilon = float(kwargs.get('epsilon', 1e-5))
 
         self.seed_list = list()  # 待扩展的种子列表
@@ -55,12 +55,12 @@ class TTRTxSpider(scrapy.Spider):
                     if except_seed is not None and row[0] in except_seed:
                         continue
                     self.seed_list.append(row[0])
-                    self.seed_map[row[0]] = {'strategy': self.strategy(row[0])}
+                    self.seed_map[row[0]] = {'strategy': self.strategy(row[0], self.alpha, self.beta, self.epsilon)}
 
         # 以参数形式输入种子
         elif self.seed is not None:
             self.seed_list.append(self.seed)
-            self.seed_map[self.seed] = {'strategy': self.strategy(self.seed)}
+            self.seed_map[self.seed] = {'strategy': self.strategy(self.seed, self.alpha, self.beta, self.epsilon)}
 
         # 发出请求
         for seed in self.seed_list:
@@ -79,24 +79,27 @@ class TTRTxSpider(scrapy.Spider):
 
         # process tx
         if data['result'] is not None:
+            # format data type
             for i in range(len(data['result'])):
-                # format data type
                 data['result'][i]['timeStamp'] = int(data['result'][i]['timeStamp'])
-
-                # save tx
-                yield TxItem(seed=kwargs['seed'], tx=data['result'][i])
-
-        # push data to strategy
-        if data['result'] is not None:
-            for i in range(len(data['result'])):
                 data['result'][i]['value'] = float(data['result'][i]['value'])
-            self.seed_map[kwargs['seed']]['strategy'].push(kwargs['address'], data['result'])
+
+            # push data to strategy and save tx
+            for tx in self.seed_map[kwargs['seed']]['strategy'].push(kwargs['address'], data['result']):
+                yield TxItem(seed=kwargs['seed'], tx=tx)
 
         # next address request
         if data['result'] is None or len(data['result']) < 10000:
             address = self.seed_map[kwargs['seed']]['strategy'].pop()
             if address is not None:
                 yield from self.gen_req(kwargs['seed'], address, 1)
+            else:
+                # logging.info(self.seed_map[kwargs['seed']]['strategy'].p)
+                yield TTRItem(
+                    seed=kwargs['seed'],
+                    p=self.seed_map[kwargs['seed']]['strategy'].p,
+                )
+
         # next page request
         else:
             yield from self.gen_req(kwargs['seed'], kwargs['address'], kwargs['page'] + 1)
@@ -120,9 +123,5 @@ class TTRTxSpider(scrapy.Spider):
     def req_filter(self, address: str):
         if address is None \
                 or len(address) < 42:
-            return None
-        if address in {'0x876eabf441b2ee5b5b0554fd502a8e0600950cfa', '0xf0d9fcb4fefdbd3e7929374b4632f8ad511bd7e3',
-                       '0x3f5ce5fbfe3e9af3971dd833d26ba9b5c936f0be', '0xf775a9a0ad44807bc15936df0ee68902af1a0eee',
-                       '0x034f854b44d28e26386c1bc37ff9b20c6380b00d'}:
             return None
         return address

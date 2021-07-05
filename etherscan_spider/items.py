@@ -11,6 +11,11 @@ class TxItem(scrapy.Item):
     tx = scrapy.Field()
 
 
+class TTRItem(scrapy.Item):
+    seed = scrapy.Field()
+    p = scrapy.Field()
+
+
 class CloseItem(scrapy.Item):
     seed = scrapy.Field()
 
