@@ -22,7 +22,7 @@ class BaseExporter:
         # save data
         s = set()
         for row in reader:
-            if row[0] not in s and float(row[3]) > 0:
+            if row[0] not in s:
                 writer.writerow(row)
                 s.add(row[0])
 
