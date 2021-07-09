@@ -31,13 +31,18 @@ class TTRTxSpider(scrapy.Spider):
 
         # 策略参数
         self.alpha = float(kwargs.get('alpha', 0.15))
-        self.beta = float(kwargs.get('beta', 0.9))
+        self.beta = float(kwargs.get('beta', 0.8))
         self.epsilon = float(kwargs.get('epsilon', 1e-5))
 
         self.seed_list = list()  # 待扩展的种子列表
         self.seed_map = dict()  # 与种子爬取任务相关信息
         self.strategy = TTR  # 爬虫策略
         self.apikey_bucket = TokenBucket(APITOKENS)  # 控制并发请求数量的令牌桶
+
+        # 起始请求控制参数
+        # self.start_args = eval(kwargs.get('start_args', '{}'))
+        self.start_block = kwargs.get('startblock', None)
+        self.end_block = kwargs.get('endblock', None)
 
     def start_requests(self):
         # 读取无需爬取的种子
@@ -64,7 +69,10 @@ class TTRTxSpider(scrapy.Spider):
 
         # 发出请求
         for seed in self.seed_list:
-            yield from self.gen_req(seed, seed, 1)
+            yield from self.gen_req(
+                seed, seed, 1,
+                **{'startblock': self.start_block, 'endblock': self.end_block}
+            )
 
     def parse(self, response, **kwargs):
         data = json.loads(response.text)
@@ -110,6 +118,9 @@ class TTRTxSpider(scrapy.Spider):
               '&offset=10000' \
               '&page=%d' \
               '&apikey=%s' % (address, page, self.apikey_bucket.pop())
+        if kwargs is not None:
+            for k, v in kwargs.items():
+                url += '&{}={}'.format(k, v)
 
         if self.req_filter(address) is not None:
             yield scrapy.Request(
