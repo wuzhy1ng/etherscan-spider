@@ -61,7 +61,7 @@ if __name__ == '__main__':
             if row[0] in tx_hash:
                 continue
             tx_hash.add(row[0])
-            g.add_edge(row[1], row[2], weight=row[3], hash=row[0])
+            g.add_edge(row[1], row[2], weight=row[3], hash=row[0], time_stamp=row[5])
 
     ttr = dict()
     in_fn = os.path.join(args.input, args.addr + '_ttr.csv')
@@ -78,9 +78,9 @@ if __name__ == '__main__':
     out_fn = os.path.join(args.output, args.addr + '_edges.csv')
     with open(out_fn, 'w', newline='') as f:
         writer = csv.writer(f)
-        writer.writerow(['Source', 'Target', 'Weight', 'hash'])
+        writer.writerow(['Source', 'Target', 'Weight', 'TimeStamp', 'hash'])
         for s, t, e_args in g.edges(data=True):
-            writer.writerow([s, t, e_args['weight'], e_args['hash']])
+            writer.writerow([s, t, e_args['weight'], e_args['time_stamp'], e_args['hash']])
 
     out_fn = os.path.join(args.output, args.addr + '_nodes.csv')
     with open(out_fn, 'w', newline='') as f:

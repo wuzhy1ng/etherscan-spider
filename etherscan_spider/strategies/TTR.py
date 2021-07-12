@@ -62,12 +62,6 @@ class TTR:
                 es_out.append(e)
         r_node = [(t, v) for t, v in r.items()]
 
-        # 当缺失输出边时考虑将流动权重回流到自身
-        if len(es_out) == 0:
-            for t, v in r.items():
-                self.r[node][t] = self.r[node].get(t, 0) + (1 - self.alpha) * self.beta * v
-            return []
-
         # 根据时间排序-从小到大
         es_out.sort(key=lambda e: e['timeStamp'])
         r_node.sort(key=lambda c: c[0])
@@ -100,6 +94,16 @@ class TTR:
             if inc > 0:
                 yield e
 
+        # 当流动权重碎片缺失输出边时将回流到自身
+        while j < len(r_node):
+            self.r[node][r_node[j][0]] = self.r[node].get(r_node[j][0], 0) + \
+                                         (1 - self.alpha) * self.beta * r_node[j][1]
+            j += 1
+        # if len(es_out) == 0:
+        #     for t, v in r.items():
+        #         self.r[node][t] = self.r[node].get(t, 0) + (1 - self.alpha) * self.beta * v
+        #     return []
+
     def _backward_push(self, node, edges: list, r: dict):
         """
         将流动权重沿着时序递增的输入边传播，并返回传播的输入边
@@ -113,12 +117,6 @@ class TTR:
             if e['to'] == node:
                 es_in.append(e)
         r_node = [(t, v) for t, v in r.items()]
-
-        # 当缺失输入边时考虑将流动权重回流到自身
-        if len(es_in) == 0:
-            for t, v in r.items():
-                self.r[node][t] = self.r[node].get(t, 0) + (1 - self.alpha) * (1 - self.beta) * v
-            return []
 
         # 根据时间排序-从小到大
         es_in.sort(key=lambda e: e['timeStamp'])
@@ -151,6 +149,16 @@ class TTR:
             # 返回权重传播的输入边
             if inc > 0:
                 yield e
+
+        # 当流动权重碎片缺失输入边时将回流到自身
+        while j >= 0:
+            self.r[node][r_node[j][0]] = self.r[node].get(r_node[j][0], 0) + \
+                                         (1 - self.alpha) * (1 - self.beta) * r_node[j][1]
+            j -= 1
+        # if len(es_in) == 0:
+        #     for t, v in r.items():
+        #         self.r[node][t] = self.r[node].get(t, 0) + (1 - self.alpha) * (1 - self.beta) * v
+        #     return []
 
     def pop(self):
         nodes_r = list()
