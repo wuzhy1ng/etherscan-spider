@@ -8,7 +8,7 @@
 import csv
 import os
 
-from .items import TxItem, CloseItem, TTRItem
+from .items import TxItem, CloseItem, TTRItem, FirstOrderNetItem
 
 
 class TxPipeline:
@@ -53,5 +53,14 @@ class TxPipeline:
                 writer.writerow(['address', 'weight'])
                 for k, v in item['p'].items():
                     writer.writerow([k, v])
+        elif isinstance(item, FirstOrderNetItem):
+            if not os.path.exists(spider.cache_path):
+                os.makedirs(spider.cache_path)
 
+            filename = os.path.join(spider.cache_path, item['seed'] + '.csv')
+            with open(filename, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(self.fields)
+                for tx in item['txs']:
+                    writer.writerow([tx[key] for key in self.fields])
         return item

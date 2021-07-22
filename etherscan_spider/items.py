@@ -16,6 +16,11 @@ class TTRItem(scrapy.Item):
     p = scrapy.Field()
 
 
+class FirstOrderNetItem(scrapy.Item):
+    seed = scrapy.Field()
+    txs = scrapy.Field()
+
+
 class CloseItem(scrapy.Item):
     seed = scrapy.Field()
 
