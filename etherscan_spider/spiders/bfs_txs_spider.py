@@ -89,8 +89,6 @@ class BFSTxsSpider(BaseTxsSpiderSpider):
             return
 
         # push data to strategy
-        # logging.info('data len %d', len(data['result']))
-        # print(data['result'])
         if data['result'] is not None:
             self.seed_map[kwargs['seed']]['strategy'].push(data['result'])
 
