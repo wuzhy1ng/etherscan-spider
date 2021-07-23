@@ -6,7 +6,7 @@ import time
 import scrapy
 
 from etherscan_spider.spiders.base_tx_spider import BaseTxSpider
-from etherscan_spider.strategies import TTR, StrategyFactory
+from etherscan_spider.strategies import TTR
 
 
 class TTRTxSpider(BaseTxSpider):

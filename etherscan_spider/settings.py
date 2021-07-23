@@ -62,7 +62,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'etherscan_spider.pipelines.TxPipeline': 300,
+   'etherscan_spider.pipelines.TxsPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -22,9 +22,13 @@ class BaseTxsSpiderSpider(scrapy.Spider):
 
         # get cache dir
         self.cache_dir = kwargs.get('cache_dir', './data/cache')
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
 
         # get output dir
         self.output_dir = kwargs.get('output_dir', './data/%s' % self.name)
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
 
         # get tx types
         self.tx_types = kwargs.get('tx_types', None)
@@ -35,31 +39,31 @@ class BaseTxsSpiderSpider(scrapy.Spider):
             'erc721': 'tokennfttx',
         }
         if self.tx_types is None:
-            self.tx_types = set(self.tx_types_allowed.values())
+            self.tx_types = set(self.tx_types_allowed.keys())
         else:
             tx_types = set()
             for tx_type in set(self.tx_types.split(',')):
                 if self.tx_types_allowed.get(tx_type) is not None:
-                    tx_types.add(self.tx_types_allowed[tx_type])
+                    tx_types.add(tx_type)
             self.tx_types = tx_types
 
         # init token bucket
         self.apikey_bucket = TokenBucket(APITOKENS)
 
-    def _load_crawled_seeds(self) -> set:
-        crawled_fn = os.path.join(self.cache_dir, 'crawled.csv')
-        crawled_seeds = set()
-        if not os.path.exists(crawled_fn):
-            with open(crawled_fn, 'w', newline='') as f:
-                csv.writer(f).writerow(['address'])
-        with open(crawled_fn, 'r') as f:
-            reader = csv.reader(f)
-            next(reader)
-            for row in reader:
-                crawled_seeds.add(row[0])
-        return crawled_seeds
+    # def load_crawled_seeds(self) -> set:
+    #     crawled_fn = os.path.join(self.cache_dir, 'crawled.csv')
+    #     crawled_seeds = set()
+    #     if not os.path.exists(crawled_fn):
+    #         with open(crawled_fn, 'w', newline='') as f:
+    #             csv.writer(f).writerow(['address'])
+    #     with open(crawled_fn, 'r') as f:
+    #         reader = csv.reader(f)
+    #         next(reader)
+    #         for row in reader:
+    #             crawled_seeds.add(row[0])
+    #     return crawled_seeds
 
-    def _load_seeds(self, crawled_seeds: set = None) -> set:
+    def load_seeds(self, crawled_seeds: set = None) -> set:
         seeds = set()
         if self.seeds_fn is not None and os.path.exists(self.seeds_fn):
             with open(self.seeds_fn, 'r') as f:
@@ -77,9 +81,25 @@ class BaseTxsSpiderSpider(scrapy.Spider):
     def parse(self, response, **kwargs):
         raise NotImplementedError()
 
-    def _gen_tx_req(
+    def has_tx_cached(self, tx_type: str, address: str) -> bool:
+        fn = os.path.join(self.cache_dir, tx_type, address + '.csv')
+        return os.path.exists(fn)
+
+    def load_tx_cached(self, tx_type: str, address: str) -> list:
+        fn = os.path.join(self.cache_dir, tx_type, address + '.csv')
+        if not os.path.exists(fn):
+            return None
+        txs = list()
+        with open(fn, 'r') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            for row in reader:
+                txs.append({header[i]: row[i] for i in range(len(header))})
+        return txs
+
+    def gen_tx_req(
             self,
-            action: str,
+            tx_type: str,
             address: str,
             start_block: int = 0,
             req_params: dict = None,
@@ -89,7 +109,8 @@ class BaseTxsSpiderSpider(scrapy.Spider):
               '&address=%s' \
               '&offset=10000' \
               '&startblock=%d' \
-              '&apikey=%s' % (action, address, start_block, self.apikey_bucket.pop())
+              '&sort=asc' \
+              '&apikey=%s' % (self.tx_types_allowed[tx_type], address, start_block, self.apikey_bucket.pop())
         if req_params is not None:
             for k, v in req_params.items():
                 url += '&{}={}'.format(k, v)
@@ -102,7 +123,7 @@ class BaseTxsSpiderSpider(scrapy.Spider):
             dont_filter=True,
         )
 
-    def _gen_tx_reqs(
+    def gen_tx_reqs(
             self,
             address: str,
             start_block: int = 0,
@@ -110,10 +131,10 @@ class BaseTxsSpiderSpider(scrapy.Spider):
             cb_kwargs: dict = None
     ):
         for tx_type in self.tx_types:
-            yield self._gen_tx_req(
-                action=tx_type,
+            yield from self.gen_tx_req(
+                tx_type=tx_type,
                 address=address,
                 start_block=start_block,
                 req_params=req_params,
-                cb_kwargs=cb_kwargs,
+                cb_kwargs={'tx_type': tx_type, **cb_kwargs},
             )

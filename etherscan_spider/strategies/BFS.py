@@ -6,18 +6,20 @@ class BFS:
 
     def __init__(self, source):
         self._queue = Queue()
-        self._vis = set()
-        self._vis.add(source)
+        self.vis = set()
+        self.vis.add(source)
 
     def push(self, edges: list):
         for e in edges:
-            self._queue.put(e.get('from'))
-            self._queue.put(e.get('to'))
+            if e.get('from') is not None:
+                self._queue.put(e['from'])
+            if e.get('to') is not None:
+                self._queue.put(e['to'])
 
     def pop(self):
         while not self._queue.empty():
             node = self._queue.get()
-            if node not in self._vis:
-                self._vis.add(node)
+            if node not in self.vis:
+                self.vis.add(node)
                 return node
         return None
