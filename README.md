@@ -1,3 +1,8 @@
+# ⚠Note
+All codes are upgraded to another repository named [BlockchainSpider](https://github.com/wuzhy1ng/BlockchainSpider), 
+and this repository will be deprecated in the future!
+
+
 # etherscan-spider
 Ethereum data spider on etherscan
 
